@@ -1,7 +1,7 @@
 "use strict";
 
 // VARIABLES -----------------------
-var riskChart = document.getElementById('riskChart').getContext('2d');
+const riskChartContext = document.getElementById('riskChart').getContext('2d');
 
 const colors = [
   'rgba(255, 102, 255)',
@@ -19,8 +19,9 @@ const backgrounds = [
   'rgba(144, 238, 144, 0.5)'
 ];
 
-const threats = ["Skills required", "Motive", "Opportunity", "Population Size",
-  "Easy of Discovery", "Ease of Exploit", "Awareness", "Intrusion Detection",
+const threats = [
+  "Skills required", "Motive", "Opportunity", "Population Size",
+  "Ease of Discovery", "Ease of Exploit", "Awareness", "Intrusion Detection",
   "Loss of confidentiality", "Loss of Integrity", "Loss of Availability", "Loss of Accountability",
   "Financial damage", "Reputation damage", "Non-Compliance", "Privacy violation"
 ];
@@ -46,8 +47,8 @@ const riskChartOptions = {
   }
 };
 
-// CHARTS -----------------------
-riskChart = new Chart(riskChart, {
+// Initialize the radar chart
+let riskChart = new Chart(riskChartContext, {
   type: 'radar',
   data: {
     labels: [],
@@ -62,229 +63,134 @@ riskChart = new Chart(riskChart, {
   options: riskChartOptions
 });
 
-updateRiskChart()
+// Update the chart initially
+updateRiskChart([], "NOTE");
 
-if (getUrlParameter('vector')) {
-  loadVectors(getUrlParameter('vector'))
+// Load vectors if present in the URL
+const vectorParam = getUrlParameter('vector');
+if (vectorParam) {
+  loadVectors(vectorParam);
 }
 
 // FUNCTIONS -----------------------
+
+// Load vectors from the URL parameter
 function loadVectors(vector) {
-
   vector = vector.replace('(', '').replace(')', '');
-  var values = vector.split('/');
+  const values = vector.split('/');
 
-  if (values.length == 16) {
-    for (let i = 0; i < values.length; i++) {
-      let aux = values[i].split(':');
-      let vector = aux[1];
-      console.log(vector)
-      $("#" + partials[i].toLowerCase()).val(vector);
-    }
+  if (values.length === partials.length) {
+    values.forEach((value, index) => {
+      const [, vectorValue] = value.split(':');
+      $(`#${partials[index].toLowerCase()}`).val(vectorValue);
+    });
   } else {
     swal("Hey!!", "The vector is not correct, make sure you have copied correctly", "error");
   }
 
-  calculate()
+  calculate();
 }
 
+// Calculate scores and update the UI
 function calculate() {
-  var LS = 0;
-  var IS = 0;
-  var dataset = [];
-  var score = '';
-  deleteClass();
+  const likelihoodScore = calculateScore(partials.slice(0, 8));
+  const impactScore = calculateScore(partials.slice(8));
 
-  // Get values THREAT AGENT FACTORS and VULNERABILITY FACTORS
-  LS = + $("#sl").val() +
-    + $("#m").val() +
-    + $("#o").val() +
-    + $("#s").val() +
-    + $("#ed").val() +
-    + $("#ee").val() +
-    + $("#a").val() +
-    + $("#id").val() + 0;
-  dataset.push($("#sl").val());
-  dataset.push($("#m").val());
-  dataset.push($("#o").val());
-  dataset.push($("#s").val());
-  dataset.push($("#ed").val());
-  dataset.push($("#ee").val());
-  dataset.push($("#a").val());
-  dataset.push($("#id").val());
+  const likelihoodRisk = getRisk(likelihoodScore);
+  const impactRisk = getRisk(impactScore);
 
-  // Get values TECHNICAL IMPACT FACTORS and BUSINESS IMPACT FACTORS
-  IS = + $("#lc").val() +
-    + $("#li").val() +
-    + $("#lav").val() +
-    + $("#lac").val() +
-    + $("#fd").val() +
-    + $("#rd").val() +
-    + $("#nc").val() +
-    + $("#pv").val() + 0;
-  dataset.push($("#lc").val());
-  dataset.push($("#li").val());
-  dataset.push($("#lav").val());
-  dataset.push($("#lac").val());
-  dataset.push($("#fd").val());
-  dataset.push($("#rd").val());
-  dataset.push($("#nc").val());
-  dataset.push($("#pv").val());
+  updateScoreDisplay(".LS", likelihoodScore, likelihoodRisk);
+  updateScoreDisplay(".IS", impactScore, impactRisk);
 
-  var LS = (LS / 8).toFixed(3);
-  var IS = (IS / 8).toFixed(3);
+  const riskSeverity = getCriticality(likelihoodRisk, impactRisk);
+  updateRiskSeverityDisplay(riskSeverity);
 
-  var FLS = getRisk(LS);
-  var FIS = getRisk(IS);
+  const dataset = partials.map(partial => $(`#${partial}`).val());
+  updateRiskChart(dataset, riskSeverity);
 
-  $(".LS").text(LS + " " + FLS);
-  $(".IS").text(IS + " " + FIS);
-
-  score = '(';
-  score = score + 'SL:' + $("#sl").val() + '/';
-  score = score + 'M:' + $("#m").val() + '/';
-  score = score + 'O:' + $("#o").val() + '/';
-  score = score + 'S:' + $("#s").val() + '/';
-  score = score + 'ED:' + $("#ed").val() + '/';
-  score = score + 'EE:' + $("#ee").val() + '/';
-  score = score + 'A:' + $("#a").val() + '/';
-  score = score + 'ID:' + $("#id").val() + '/';
-  score = score + 'LC:' + $("#lc").val() + '/';
-  score = score + 'LI:' + $("#li").val() + '/';
-  score = score + 'LAV:' + $("#lav").val() + '/';
-  score = score + 'LAC:' + $("#lac").val() + '/';
-  score = score + 'FD:' + $("#fd").val() + '/';
-  score = score + 'RD:' + $("#rd").val() + '/';
-  score = score + 'NC:' + $("#nc").val() + '/';
-  score = score + 'PV:' + $("#pv").val();
-  score = score + ')';
-  $('#score').text(score);
-  $("#score").attr("href", "https://optitool.github.io/OWASP-Calculator/?vector=" + score);
-
-  if (getRisk(LS) == "LOW") {
-    $(".LS").addClass("classNote");
-  } else if (getRisk(LS) == "MEDIUM") {
-    $(".LS").addClass("classMedium");
-  } else {
-    $(".LS").addClass("classHigh");
-  }
-
-  if (getRisk(IS) == "LOW") {
-    $(".IS").addClass("classNote");
-  } else if (getRisk(IS) == "MEDIUM") {
-    $(".IS").addClass("classMedium");
-  } else {
-    $(".IS").addClass("classHigh");
-  }
-
-  //FINAL
-  var RS = getCriticaly(FLS, FIS);
-  if (RS == "NOTE") {
-    $(".RS").text(RS);
-    $(".RS").addClass("classNote");
-  } else if (RS == "LOW") {
-    $(".RS").text(RS);
-    $(".RS").addClass("classLow");
-  } else if (RS == "MEDIUM") {
-    $(".RS").text(RS);
-    $(".RS").addClass("classMedium");
-  } else if (RS == "HIGH") {
-    $(".RS").text(RS);
-    $(".RS").addClass("classHigh");
-  } else if (RS == "CRITICAL") {
-    $(".RS").text(RS);
-    $(".RS").addClass("classCritical");
-  } else {
-    $(".RS").text(RS);
-    $(".RS").addClass("classNote");
-  }
-
-  updateRiskChart(dataset, RS)
+  const scoreVector = generateScoreVector();
+  $('#score').text(scoreVector);
+  $("#score").attr("href", `https://optitool.github.io/OWASP-Calculator/?vector=${scoreVector}`);
 }
 
+// Calculate the average score for a set of inputs
+function calculateScore(factors) {
+  const total = factors.reduce((sum, factor) => sum + +$(`#${factor}`).val(), 0);
+  return (total / factors.length).toFixed(3);
+}
+
+// Update the score display with the calculated value and risk level
+function updateScoreDisplay(selector, score, riskLevel) {
+  $(selector).text(`${score} ${riskLevel}`);
+  updateClass(selector, riskLevel);
+}
+
+// Update the risk severity display
+function updateRiskSeverityDisplay(severity) {
+  $(".RS").text(severity);
+  updateClass(".RS", severity);
+}
+
+// Update the class for a given selector based on the risk level
+function updateClass(selector, riskLevel) {
+  const classMap = {
+    "NOTE": "classNote",
+    "LOW": "classLow",
+    "MEDIUM": "classMedium",
+    "HIGH": "classHigh",
+    "CRITICAL": "classCritical"
+  };
+
+  Object.values(classMap).forEach(cls => $(selector).removeClass(cls));
+  $(selector).addClass(classMap[riskLevel] || "classNote");
+}
+
+// Generate the score vector string
+function generateScoreVector() {
+  return `(${partials.map(partial => `${partial.toUpperCase()}:${$(`#${partial}`).val()}`).join('/')})`;
+}
+
+// Determine the risk level based on the score
 function getRisk(score) {
   if (score == 0) return 'NOTE';
   if (score < 3) return 'LOW';
   if (score < 6) return 'MEDIUM';
   if (score <= 9) return 'HIGH';
+  return 'CRITICAL';
 }
 
-// Calculate final Risk Serverity
-function getCriticaly(L, I) {
-  //NOTE
-  if (L == "LOW" && I == "LOW") return 'NOTE';
-
-  //LOW
-  if (L == "LOW" && I == "MEDIUM") return 'LOW';
-  if (L == "MEDIUM" && I == "LOW") return 'LOW';
-
-  //MEDIUM
-  if (L == "LOW" && I == "HIGH") return 'MEDIUM';
-  if (L == "MEDIUM" && I == "MEDIUM") return 'MEDIUM';
-  if (L == "HIGH" && I == "LOW") return 'MEDIUM';
-
-  //HIGH
-  if (L == "HIGH" && I == "MEDIUM") return 'HIGH';
-  if (L == "MEDIUM" && I == "HIGH") return 'HIGH';
-
-  //CRITICAL
-  if (L == "HIGH" && I == "HIGH") return 'CRITICAL';
+// Determine the final risk severity based on likelihood and impact
+function getCriticality(likelihood, impact) {
+  if (likelihood === "LOW" && impact === "LOW") return 'NOTE';
+  if ((likelihood === "LOW" && impact === "MEDIUM") || (likelihood === "MEDIUM" && impact === "LOW")) return 'LOW';
+  if ((likelihood === "LOW" && impact === "HIGH") || (likelihood === "MEDIUM" && impact === "MEDIUM") || (likelihood === "HIGH" && impact === "LOW")) return 'MEDIUM';
+  if ((likelihood === "HIGH" && impact === "MEDIUM") || (likelihood === "MEDIUM" && impact === "HIGH")) return 'HIGH';
+  if (likelihood === "HIGH" && impact === "HIGH") return 'CRITICAL';
+  return 'NOTE';
 }
 
-// Delete class before of calculate
-function deleteClass() {
-  // Delete Class Likelihood Score
-  $(".LS").removeClass("classNote");
-  $(".LS").removeClass("classMedium");
-  $(".LS").removeClass("classHigh");
-
-  // Delete Class Impact Score
-  $(".IS").removeClass("classNote");
-  $(".IS").removeClass("classMedium");
-  $(".IS").removeClass("classHigh");
-
-  // Delete Class Risk Severity
-  $(".RS").removeClass("classNote");
-  $(".RS").removeClass("classLow");
-  $(".RS").removeClass("classMedium");
-  $(".RS").removeClass("classHigh");
-  $(".RS").removeClass("classCritical");
-}
-
+// Get a URL parameter by name
 function getUrlParameter(name) {
-  name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-  var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-  var results = regex.exec(location.search);
-  return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-};
+  const regex = new RegExp(`[\\?&]${name}=([^&#]*)`);
+  const results = regex.exec(location.search);
+  return results ? decodeURIComponent(results[1].replace(/\+/g, ' ')) : '';
+}
 
-function updateRiskChart(dataset, RS) {
-  var c = 0;
-  var dataset = dataset;
-
-  switch (RS) {
-    case "LOW":
-      c = 3;
-      break;
-    case "MEDIUM":
-      c = 2;
-      break;
-    case "HIGH":
-      c = 1;
-      break;
-    case "CRITICAL":
-      c = 0;
-      break;
-    default:
-      c = 4;
-      break;
-  }
+// Update the radar chart with new data
+function updateRiskChart(dataset, riskSeverity) {
+  const severityIndex = {
+    "CRITICAL": 0,
+    "HIGH": 1,
+    "MEDIUM": 2,
+    "LOW": 3,
+    "NOTE": 4
+  }[riskSeverity] || 4;
 
   riskChart.data.labels = threats;
   riskChart.data.datasets[0].data = dataset;
-  riskChart.data.datasets[0].pointBackgroundColor = colors[c];
-  riskChart.data.datasets[0].backgroundColor = backgrounds[c];
-  riskChart.data.datasets[0].borderColor = colors[c];
+  riskChart.data.datasets[0].pointBackgroundColor = colors[severityIndex];
+  riskChart.data.datasets[0].backgroundColor = backgrounds[severityIndex];
+  riskChart.data.datasets[0].borderColor = colors[severityIndex];
 
   riskChart.update();
 }
