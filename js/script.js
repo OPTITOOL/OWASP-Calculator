@@ -194,3 +194,15 @@ function updateRiskChart(dataset, riskSeverity) {
 
   riskChart.update();
 }
+
+// Copy the vector link to the clipboard
+function copyToClipboard() {
+  const scoreElement = document.getElementById("score");
+  navigator.clipboard.writeText(scoreElement.href)
+    .then(() => {
+      alert("Vector link copied to clipboard!");
+    })
+    .catch(err => {
+      console.error("Failed to copy text: ", err);
+    });
+}
