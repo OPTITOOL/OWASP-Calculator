@@ -43,7 +43,8 @@
 }
 
 .risk {
-	width: 400px;
+	width: 100%;
+	max-width: 400px;
 	margin: 0 auto;
 }
 
@@ -53,6 +54,7 @@
 
 h1 {
 	font-weight: bold;
+	font-size: 1.5rem;
 }
 
 section {
@@ -61,10 +63,13 @@ section {
 
 .row {
 	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
 }
 
 .row>section {
 	flex: 1;
+	min-width: 300px;
 }
 
 .nomargin {
@@ -83,15 +88,32 @@ body {
 }
 
 main {
-	max-width: 1200px;
-	margin: auto;
-	width: 1200px;
+	max-width: 100%;
+	width: 100%;
+	padding: 10px;
 	text-align: center;
 }
 
 /* MEDIA QUERIES ----------------------- */
 @media screen and (max-width: 576px) {
+	body {
+		flex-direction: column;
+		padding: 10px;
+	}
+
 	.row {
 		flex-direction: column;
+	}
+
+	h1 {
+		font-size: 1.2rem;
+	}
+
+	.risk {
+		width: 100%;
+	}
+
+	.riskChart {
+		width: 100%;
 	}
 }
