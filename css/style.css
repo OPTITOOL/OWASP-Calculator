@@ -97,7 +97,7 @@ main {
   
   .tooltip-content {
 	visibility: hidden;
-	width: 400px; /* Adjust width as needed */
+	width: 600px; /* Adjust width as needed */
 	background-color: #fff;
 	border: 1px solid #ccc;
 	border-radius: 5px;
