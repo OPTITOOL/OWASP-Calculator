@@ -3,12 +3,21 @@
 // VARIABLES -----------------------
 const riskChartContext = document.getElementById('riskChart').getContext('2d');
 
+const defaultVector = "SL:1/M:1/O:0/S:2/ED:1/EE:1/A:1/ID:1/LC:2/LI:1/LAV:1/LAC:1/FD:1/RD:1/NC:2/PV:3";
+
 const colors = [
-  'rgba(255, 102, 255)',
-  'rgba(255, 0, 0)',
-  'rgba(255, 169, 0)',
-  'rgba(255, 255, 0)',
-  'rgba(144, 238, 144)'
+  'rgb(255, 102, 255)',
+  'rgb(255, 0, 0)',
+  'rgb(255, 169, 0)',
+  'rgb(255, 255, 0)',
+  'rgb(144, 238, 144)'
+];
+
+const threatCatColors = [
+  'rgb(60, 177, 119)',
+  'rgb(226, 100, 142)',
+  'rgb(100, 112, 226)',
+  'rgb(226, 161, 100)'
 ];
 
 const backgrounds = [
@@ -29,20 +38,23 @@ const threats = [
 const partials = ["sl", "m", "o", "s", "ed", "ee", "a", "id", "lc", "li", "lav", "lac", "fd", "rd", "nc", "pv"];
 
 const riskChartOptions = {
-  legend: {
-    position: 'top',
-    display: false,
+  plugins: {
+    legend: {
+      display: false
+    }
   },
   title: {
     display: false,
     text: 'Chart.js Radar Chart'
   },
-  scale: {
-    ticks: {
+  scales: {
+    r: {
+      angleLines: {
+        lineWidth: 2
+      },
       beginAtZero: true,
       suggestedMin: 0,
-      suggestedMax: 10,
-      stepSize: 1
+      suggestedMax: 10
     }
   }
 };
@@ -63,13 +75,12 @@ let riskChart = new Chart(riskChartContext, {
   options: riskChartOptions
 });
 
-// Update the chart initially
-updateRiskChart([], "NOTE");
-
 // Load vectors if present in the URL
 const vectorParam = getUrlParameter('vector');
 if (vectorParam) {
   loadVectors(vectorParam);
+} else {
+  loadVectors(defaultVector);
 }
 
 // FUNCTIONS -----------------------
@@ -152,11 +163,9 @@ function generateScoreVector() {
 
 // Determine the risk level based on the score
 function getRisk(score) {
-  if (score == 0) return 'NOTE';
   if (score < 3) return 'LOW';
   if (score < 6) return 'MEDIUM';
-  if (score <= 9) return 'HIGH';
-  return 'CRITICAL';
+  return 'HIGH';
 }
 
 // Determine the final risk severity based on likelihood and impact
@@ -186,11 +195,20 @@ function updateRiskChart(dataset, riskSeverity) {
     "NOTE": 4
   }[riskSeverity] || 4;
 
+  // Map dataset to colors based on threat categories
+  const pointColors = threats.map((_, index) => {
+    const categoryIndex = Math.floor(index / 4); // Calculate category index
+    return threatCatColors[categoryIndex] || "rgba(0, 0, 0)";
+  });
+
   riskChart.data.labels = threats;
   riskChart.data.datasets[0].data = dataset;
   riskChart.data.datasets[0].pointBackgroundColor = colors[severityIndex];
   riskChart.data.datasets[0].backgroundColor = backgrounds[severityIndex];
   riskChart.data.datasets[0].borderColor = colors[severityIndex];
+
+  riskChart.options.scales.r.angleLines.color = pointColors;
+
 
   riskChart.update();
 }

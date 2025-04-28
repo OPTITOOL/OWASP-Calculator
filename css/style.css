@@ -48,7 +48,7 @@
 }
 
 .riskChart {
-	margin-bottom: 10px;
+	width: 100%; /* Make the chart responsive */
 }
 
 h1 {
@@ -72,7 +72,6 @@ section {
 }
 
 
-
 body {
 	display: flex;
 	align-items: center;
@@ -85,11 +84,35 @@ body {
 }
 
 main {
-	max-width: 1200px;
+	/* max-width: 1200px; */
 	margin: auto;
-	width: 1200px;
+	/* width: 1200px; */
 	text-align: center;
 }
+
+.tooltip-container {
+	position: relative;
+	display: inline-block;
+  }
+  
+  .tooltip-content {
+	visibility: hidden;
+	width: 400px; /* Adjust width as needed */
+	background-color: #fff;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	padding: 10px;
+	position: absolute;
+	z-index: 1000;
+	top: 100%; /* Position below the button */
+	left: 50%;
+	transform: translateX(-50%);
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .tooltip-container:hover .tooltip-content {
+	visibility: visible;
+  }
 
 /* MEDIA QUERIES ----------------------- */
 @media screen and (max-width: 576px) {
