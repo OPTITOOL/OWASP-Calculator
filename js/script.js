@@ -224,3 +224,33 @@ function copyToClipboard() {
       console.error("Failed to copy text: ", err);
     });
 }
+
+let currentLanguage = "en";
+let translations = {};
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Load translations
+  fetch("localization.json")
+    .then(response => response.json())
+    .then(data => {
+      translations = data;
+      updateLocalization();
+    });
+});
+
+function changeLanguage() {
+  const languageSelector = document.getElementById("language");
+  currentLanguage = languageSelector.value;
+  updateLocalization();
+}
+
+function updateLocalization() {
+  document
+    // Find all elements that have the key attribute
+    .querySelectorAll("[data-i18n-key]")
+    .forEach(element => {
+      const key = element.getAttribute("data-i18n-key");
+      const translation = translations[currentLanguage][key];
+      element.innerText = translation;
+    });
+}

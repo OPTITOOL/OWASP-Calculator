@@ -11,7 +11,7 @@
     <meta name="title" content="OWASP Risk Assessment Calculator" />
     <meta
       name="description"
-      content="New version 2021 of OWASP Risk Assessment Calculator"
+      content="New version 2025 of OWASP Risk Assessment Calculator"
     />
     <meta name="author" content="Javier Olmedo" />
     <link rel="shortcut icon" href="img/favicon.ico" />
@@ -28,7 +28,7 @@
   <body>
     <main>
       <section>
-        <h1>OWASP Risk Assessment Calculator</h1>
+        <h1 data-i18n-key="app-title">OWASP Risk Assessment Calculator</h1>
         <div class="tooltip-container">
           <div class="risk RS">
             <h4>0</h4>
@@ -493,7 +493,7 @@
             <i class="far fa-copy"></i>
           </button>
           <br />
-          2021 OWASP Risk Assessment Calculator | Developed by Javier Olmedo |
+          2025 OWASP Risk Assessment Calculator | Developed by Javier Olmedo |
           Source Code on
           <a href="https://github.com/optitool/OWASP-Calculator" target="_blank"
             ><span>Github</span></a
@@ -501,6 +501,15 @@
           repository.
         </div>
       </section>
+
+      <!-- LANGUAGE SELECTOR -->
+      <div class="language-selector">
+        <label for="language">Language:</label>
+        <select id="language" onchange="changeLanguage()">
+          <option value="en">English</option>
+          <option value="de">German</option>
+        </select>
+      </div>
     </main>
 
     <!-- SCRIPTS -->
