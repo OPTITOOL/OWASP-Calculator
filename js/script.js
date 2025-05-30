@@ -133,29 +133,29 @@ function calculateScore(factors) {
 // Update the score display with the calculated value and risk level
 function updateScoreDisplay(selector, score, riskLevel) {
   const classMap = {
-    "LOW": "classNote",
-    "MEDIUM": "classLow",
-    "HIGH": "classHigh"
+    "LOW": "classGreen",
+    "MEDIUM": "classYellow",
+    "HIGH": "classRed"
   };
   $(selector)
     .text(`${score} ${riskLevel}`)
     .removeClass(Object.values(classMap).join(' '))
-    .addClass(classMap[riskLevel] || "classNote");
+    .addClass(classMap[riskLevel] || "classGreen");
 }
 
 // Update the risk severity display
 function updateRiskSeverityDisplay(severity) {
   const classMap = {
-    "NOTE": "classNote",
-    "LOW": "classLow",
-    "MEDIUM": "classMedium",
-    "HIGH": "classHigh",
-    "CRITICAL": "classCritical"
+    "NOTE": "classGreen",
+    "LOW": "classYellow",
+    "MEDIUM": "classOrange",
+    "HIGH": "classRed",
+    "CRITICAL": "classPink"
   };
   $(".RS")
     .text(severity)
     .removeClass(Object.values(classMap).join(' '))
-    .addClass(classMap[severity] || "classNote");
+    .addClass(classMap[severity] || "classGreen");
 }
 
 // Generate the score vector string

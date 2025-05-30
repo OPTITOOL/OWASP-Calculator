@@ -2,7 +2,7 @@
 	box-sizing: border-box;
 }
 
-.classCritical {
+.classPink {
 	color: #FFFFFF;
 	background-color: rgb(255, 102, 255, 0.5);
 	font-weight: bold;
@@ -10,7 +10,7 @@
 	border-radius: 5px;
 }
 
-.classHigh {
+.classRed {
 	color: #FFFFFF;
 	background-color: rgba(255, 0, 0, 0.5);
 	font-weight: bold;
@@ -18,7 +18,7 @@
 	border-radius: 5px;
 }
 
-.classMedium {
+.classOrange {
 	color: #000000;
 	background-color: rgba(255, 169, 0, 0.5);
 	font-weight: bold;
@@ -26,7 +26,7 @@
 	border-radius: 5px;
 }
 
-.classLow {
+.classYellow {
 	color: #000000;
 	background-color: rgba(255, 255, 0, 0.5);
 	font-weight: bold;
@@ -34,7 +34,7 @@
 	border-radius: 5px;
 }
 
-.classNote {
+.classGreen {
 	color: #000000;
 	background-color: rgba(144, 238, 144, 0.5);
 	font-weight: bold;
