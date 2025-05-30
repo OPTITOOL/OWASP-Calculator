@@ -256,3 +256,23 @@ function updateLocalization() {
       element.innerText = translation;
     });
 }
+
+function copyMarkdownScore() {
+  // Get scores and risks from the UI
+  const likelihoodText = $(".LS").text().trim(); // e.g. "2.000 LOW"
+  const impactText = $(".IS").text().trim();     // e.g. "2.500 LOW"
+  const severityText = $(".RS").text().trim();   // e.g. "NOTE"
+  const scoreLink = $("#score").attr("href");
+
+  // Format as Markdown
+  const markdown = `${likelihoodText.padEnd(15)}| ${impactText.padEnd(10)}| [${severityText}](${scoreLink})`;
+
+  // Copy to clipboard
+  navigator.clipboard.writeText(markdown)
+    .then(() => {
+      alert("Markdown score copied to clipboard!");
+    })
+    .catch(err => {
+      console.error("Failed to copy markdown: ", err);
+    });
+}

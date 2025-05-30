@@ -131,3 +131,12 @@ main {
 .language-selector label {
 	margin-right: 10px;
 }
+
+#copyMarkdownButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0 0.5em;
+  color: inherit;
+  font-size: 1.2em;
+}
